@@ -1,5 +1,5 @@
 use super::orderbook::{Order, OrderBook};
-use std::{collections::HashMap, thread::LocalKey};
+use std::collections::HashMap;
 
 #[derive(Eq, PartialEq, Hash, Debug, Clone)]
 pub struct TradingPair {
@@ -28,7 +28,7 @@ impl MatchingEngine {
         }
     }
 
-    pub fn add_new_market(&mut self, trading_pair: TradingPair) {
+    pub fn add_new_market(&mut self, trading_pair: &TradingPair) {
         self.orderbooks
             .insert(trading_pair.clone(), OrderBook::new());
         println!("New market added: {}", trading_pair.to_string());
@@ -45,6 +45,11 @@ impl MatchingEngine {
         match orderbook {
             Some(orderbook) => {
                 orderbook.add_limit_order(price, order);
+                println!(
+                    "Placed order for {} at price {}",
+                    trading_pair.to_string(),
+                    price
+                );
                 Ok(())
             }
             None => Err(format!("Market not found: {}", trading_pair.to_string())),

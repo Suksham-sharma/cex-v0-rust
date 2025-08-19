@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub enum OrderType {
     Bid,
     Ask,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct OrderBook {
     asks: HashMap<Price, Limit>,
     bids: HashMap<Price, Limit>,
@@ -73,7 +73,7 @@ impl Price {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 struct Limit {
     price: Price,
     orders: Vec<Order>,
@@ -87,12 +87,31 @@ impl Limit {
         }
     }
 
+    fn fill_order(&mut self, market_order: &mut Order) {
+        for limit_order in self.orders.iter_mut() {
+            match market_order.size >= limit_order.size {
+                true => {
+                    market_order.size -= limit_order.size;
+                    limit_order.size = 0.0;
+                }
+                false => {
+                    limit_order.size -= market_order.size;
+                    market_order.size = 0.0;
+                }
+            }
+
+            if market_order.is_filled() {
+                break;
+            }
+        }
+    }
+
     fn add_order(&mut self, order: Order) {
         self.orders.push(order);
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Order {
     size: f64,
     order_type: OrderType,
@@ -101,5 +120,9 @@ pub struct Order {
 impl Order {
     pub fn new(order_type: OrderType, size: f64) -> Order {
         Order { size, order_type }
+    }
+
+    pub fn is_filled(&self) -> bool {
+        self.size == 0.0
     }
 }
