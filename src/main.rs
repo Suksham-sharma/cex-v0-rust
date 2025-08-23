@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 mod matching_engine;
 
 use matching_engine::engine::{MatchingEngine, TradingPair};
